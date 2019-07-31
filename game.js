@@ -39,7 +39,13 @@ const levelHeight = level.length;
 const gravity = 20;
 
 const keyDown = {};
-window.onkeyup = function(e) { keyDown[e.keyCode] = false; console.log(e.keyCode) }
+window.onkeyup = function(e) { 
+    keyDown[e.keyCode] = false; 
+    
+    if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+        e.preventDefault();
+    }
+}
 window.onkeydown = function(e) { keyDown[e.keyCode] = true; }
 
 let players = [];
@@ -141,11 +147,9 @@ class Player {
     }
 
     hit(ko) {
-        console.log('ko is ' + ko);
         if(ko) {
             this.state = "ko";
             this.stateTime = Date.now() + 2500;
-            console.log('knocked out');
 
             this.vel.x = (Math.random() * 1) * (Math.random() > 0.5 || this.pos.x > 7 ? -1 : 1);
         } else {
@@ -193,8 +197,6 @@ class Player {
                     if(this.state == "bonker") {
                         this.state = "ko";
                         this.stateTime = Date.now() + (Math.random() * 300);
-
-                        console.log("ko'd self");
 
                         player.state = "ko";
                         player.stateTime = Date.now() + 500;
@@ -354,9 +356,6 @@ function setupLevel() {
 
 tiles['@'] = class {
     constructor(pos) {
-        console.log('spawn');
-        console.log(pos);
-
         /*window.spawnPlayer = function(p) {
             var player = new Player();
             player.pos = { x: pos.x, y: pos.y };
@@ -410,9 +409,6 @@ tiles['#'] = class {
 
         this.invert = false;
         this.sprite = getTile('O');
-
-        console.log('button');
-        console.log(pos);
 
         window.bonkBridge = (invert) => {
             this.invert = invert;
@@ -498,9 +494,6 @@ tiles['$'] = class {
 
         this.sprite = getTile('M');
         this.coins = [];
-
-        console.log('prize');
-        console.log(pos);
 
         window.bonkWin = () => {
             for(let i = 0; i < 15; i++) {
@@ -594,8 +587,6 @@ tiles['?'] = class {
                 this.state = 'idle';
                 this.stateTime = now;
                 oy = 0;
-
-                console.log('flipped');
             } else {
                 ctx.drawImage(getTile('Z' + parseInt(frame)), pos.x, pos.y, 32, 32);
             }
@@ -615,8 +606,6 @@ tiles['?'] = class {
         if(this.on && this.state == 'idle') {
             this.state = 'flip';
             this.stateTime = Date.now();
-
-            console.log('flipping');
         }
     }
 

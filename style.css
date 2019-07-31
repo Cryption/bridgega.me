@@ -28,6 +28,8 @@ body {
 
     font-family: 'Arcade', monospace;
     color: white;
+
+    margin-bottom: 48px;
 }
 
 .game {
