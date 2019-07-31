@@ -1,5 +1,5 @@
 //var ws = new WebSocket("ws://localhost:3001"); //"ws://10.150.93.108:8080");
-var ws = new WebSocket("wss://ws.bridgega.me:3000");
+var ws = new WebSocket("wss://ws.bridgega.me");
 
 var tokensEl = document.getElementById('tokens');
 var statusEl = document.getElementById('status');
