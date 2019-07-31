@@ -233,7 +233,7 @@ class Player {
                 hit.topbonk();
             
             if(collidable && this.pos.y >= 6 && this.pos.y <= 9) {
-                if(this.state == "bonker" && this.vel.y > 2) {
+                if(this.state == "bonker" && this.vel.y > 8) {
                     this.stateTime = Date.now() + 1000;
                     this.state = "ko";
                 } else if(this.vel.y > 1) {

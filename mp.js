@@ -1,5 +1,5 @@
-//var ws = new WebSocket("ws://localhost:3000"); //"ws://10.150.93.108:8080");
-var ws = new WebSocket("ws://ws.bridgega.me:3001");
+var ws = new WebSocket("ws://localhost:3001"); //"ws://10.150.93.108:8080");
+//var ws = new WebSocket("ws://ws.bridgega.me:3001");
 
 var tokensEl = document.getElementById('tokens');
 var statusEl = document.getElementById('status');
@@ -29,58 +29,103 @@ ws.onopen = (e) => {
 
 let otherPlayers = {};
 
+
+const stateValues = [
+    "idle", "walk", "jump",
+    "fall", "bonker", "bonk",
+    "down", "ko"
+];
+
+ws.binaryType = 'arraybuffer';
 ws.onmessage = function (event) {
-    let data = JSON.parse(event.data);
-    if(data.type != null)
-        console.log(data);
+    if(event.data instanceof ArrayBuffer) {
+        var buf = new Uint8Array(event.data).buffer;
+        var dv = new DataView(buf);
 
-    if(data.bridgeOn != null) {
-        window.bridgeOn = data.bridgeOn;
-    }
+        let savedIds = [];
 
-    switch(data.type) {
-        case "spawned":
-            state = 'Playing';
-            spawnPlayer(data.pos);
-            me.id = data.id;
-            break;
-        case "die":
-            state = 'Dead';
-            me.alive = false;
-            me = null;
-            break;
-        case "hit":
-            me.hit(data.ko);
-            break;
-        case "bonkBridge":
-            window.bonkBridge(data.invert);
-            break;
-        case "bonkWin":
-            window.bonkWin();
-            break;
-        case undefined:
-            if(Array.isArray(data)) {
-                data.forEach((p) => {
-                    if(window.me != null && p.id == me.id) return;
-                    if(otherPlayers[p.id] == null)
-                        otherPlayers[p.id] = spawnFriend();
+        for(let i = 0; i < dv.byteLength; i += (4 * 3) + 1)
+        {
+            let id = dv.getInt32(i, true);
+            let x = dv.getFloat32(i + 4, true);
+            let y = dv.getFloat32(i + 8, true);
+            let state = dv.getUint8(i + (4 * 3));
 
-                    let pal = otherPlayers[p.id];
-                    pal.id = p.id;
-                    
-                    pal.oldPos = pal.newPos;
-                    pal.newPos = { x: p.x, y: p.y };
-                    pal.oldTime = pal.newTime;
-                    pal.newTime = Date.now();
-                    pal.state = p.state;
-                });
+            console.log({ x: x, y: y });
 
-                for(id in otherPlayers)
-                {
-                    otherPlayers[id].alive = data.some((p2) => p2.id == id);
+            if(window.me != null && id == me.id) continue;
+            if(otherPlayers[id] == null)
+                otherPlayers[id] = spawnFriend();
+
+            let pal = otherPlayers[id];
+            pal.id = id;
+            
+            pal.oldPos = pal.newPos;
+            pal.newPos = { x: x, y: y };
+            pal.oldTime = pal.newTime;
+            pal.newTime = Date.now();
+            pal.state = stateValues[state];
+
+            savedIds.push(id);
+        }
+
+        for(id in otherPlayers)
+        {
+            otherPlayers[id].alive = savedIds.indexOf(otherPlayers[id].id) != -1;
+        }
+    } else {
+        let data = JSON.parse(event.data);
+        if(data.type != null)
+            console.log(data);
+
+        if(data.bridgeOn != null) {
+            window.bridgeOn = data.bridgeOn;
+        }
+
+        switch(data.type) {
+            case "spawned":
+                state = 'Playing';
+                spawnPlayer(data.pos);
+                me.id = data.id;
+                break;
+            case "die":
+                state = 'Dead';
+                me.alive = false;
+                me = null;
+                break;
+            case "hit":
+                me.hit(data.ko);
+                break;
+            case "bonkBridge":
+                window.bonkBridge(data.invert);
+                break;
+            case "bonkWin":
+                window.bonkWin();
+                break;
+            case undefined:
+                if(Array.isArray(data)) {
+                    data.forEach((p) => {
+                        if(window.me != null && p.id == me.id) return;
+                        if(otherPlayers[p.id] == null)
+                            otherPlayers[p.id] = spawnFriend();
+
+                        let pal = otherPlayers[p.id];
+                        pal.id = p.id;
+                        
+                        pal.oldPos = pal.newPos;
+                        pal.newPos = { x: p.x, y: p.y };
+                        pal.oldTime = pal.newTime;
+                        pal.newTime = Date.now();
+                        pal.state = stateValues[p.state];
+                    });
+
+                    for(id in otherPlayers)
+                    {
+                        otherPlayers[id].alive = data.some((p2) => p2.id == id);
+                    }
                 }
-            }
-            break;
+                break;
+        }
     }
 };
 
