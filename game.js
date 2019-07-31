@@ -320,7 +320,7 @@ class Player {
         if(!this.lookingRight)
             ctx.scale(-1, 1);
         if(!this.controllable)
-            ctx.globalAlpha = 0.8;
+            ctx.globalAlpha = 0.65;
 
         ctx.drawImage(sprite, -16, -16, 32, 32);
 
