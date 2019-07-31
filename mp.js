@@ -93,6 +93,10 @@ ws.onmessage = function (event) {
                 me.alive = false;
                 me = null;
                 break;
+            case "cheat":
+                me.vel = { x: 0, y: 0};
+                me.pos = { x: data.x, y: data.y };
+                break;
             case "hit":
                 me.hit(data.ko);
                 break;
