@@ -3,6 +3,21 @@
     src: url('ARCADECLASSIC.TTF')  format('truetype')
   }
 
+.title {
+    font-family: 'Arcade', monospace;
+    color: white;
+    width: 100%;
+    text-align: center;
+    display: block;
+
+    font-size: 100px;
+}
+
+.dot {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 80px;
+}
+
 body {
     background: rgb(15, 15, 15);
 }
@@ -10,6 +25,9 @@ body {
 .content {
     width: 700px;
     margin: 0px auto;
+
+    font-family: 'Arcade', monospace;
+    color: white;
 }
 
 .game {
@@ -21,7 +39,6 @@ body {
     display: block;
     
     margin: 0px auto;
-    margin-top: 100px;
 
     border-radius: 8px;
     width: 1000px;
