@@ -1,0 +1,61 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script>
+         console.log("%cHey! %cPlease don't edit the client code, unless you don't mind getting banned by the anti-cheat", "background:black ; color: white", "color: red; font-size:25px");
+    </script>
+</head>
+<body>
+    <div style="display: none; image-rendering: pixelated">
+            <img id="Q" src="sprites/grass_00_32.png" />
+            <img id="W" src="sprites/grass_01_32.png" />
+            <img id="E" src="sprites/grass_02_32.png" />
+            <img id="A" src="sprites/grass_10_32.png" />
+            <img id="S" src="sprites/grass_11.png" />
+            <img id="D" src="sprites/grass_12_32.png" />
+
+            <img id="R" src="sprites/bridge2_32.png" />
+            <img id="T" src="sprites/bridge_off_32.png" />
+
+            <img id="O" src="sprites/on_32.png" />
+            <img id="P" src="sprites/off_32.png" />
+            <img id="M" src="sprites/money_32.png" />
+
+            <img id="Z" src="sprites/blocked_32.png" />
+            <img id="Z1" src="sprites/blocked1_32.png" />
+            <img id="Z2" src="sprites/blocked2_32.png" />
+            <img id="Z3" src="sprites/blocked3_32.png" />
+
+            <img id="coin" src="sprites/coin_32.png" />
+
+            <img id="idle0" src="sprites/splayer0_32.png" />
+            <img id="idle1" src="sprites/splayer1_32.png" />
+
+            <img id="jump" src="sprites/splayer_jump_32.png" />
+
+            <img id="fall0" src="sprites/splayer_fall0_32.png" />
+            <img id="fall1" src="sprites/splayer_fall1_32.png" />
+            <img id="bonk" src="sprites/splayer_bonk_32.png" />
+
+            <img id="bonker" src="sprites/splayer_bonker_32.png" />
+            <img id="down" src="sprites/splayer_down_32.png" />
+            <img id="up" src="sprites/splayer_up_32.png" />
+            <img id="ko" src="sprites/splayer_ko_32.png" />
+
+            <img id="walk0" src="sprites/splayer_walk0_32.png" />
+            <img id="walk1" src="sprites/splayer_walk1_32.png" />
+            <img id="walk2" src="sprites/splayer_walk2_32.png" />
+            <img id="walk3" src="sprites/splayer_walk3_32.png" />
+    </div>
+
+    <canvas class="game" id="game" width="1000" height="400"></canvas>
+
+    <div class="content">
+        <div class="info"><span class="left" id="status">Connecting</span><span class="right" id="tokens"></span></div>
+        <button class="button" onclick="start();">Play</button>
+    </div>
+
+    <script src="mp.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

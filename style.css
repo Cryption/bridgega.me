@@ -1,0 +1,76 @@
+@font-face {
+    font-family: 'Arcade';
+    src: url('ARCADECLASSIC.TTF')  format('truetype')
+  }
+
+body {
+    background: rgb(15, 15, 15);
+}
+
+.content {
+    width: 700px;
+    margin: 0px auto;
+}
+
+.game {
+    background: rgb(71, 182, 233);
+
+    border: solid 1px #25394d;
+    box-shadow: inset 0px 0px 102px -32px rgba(0,0,0,0.66), 0px 0px 102px -32px rgba(0,0,0,1);
+    
+    display: block;
+    
+    margin: 0px auto;
+    margin-top: 100px;
+
+    border-radius: 8px;
+    width: 1000px;
+    height: 400px;    
+
+    image-rendering: optimizeSpeed;             /* STOP SMOOTHING, GIVE ME SPEED  */
+    image-rendering: -moz-crisp-edges;          /* Firefox                        */
+    image-rendering: -o-crisp-edges;            /* Opera                          */
+    image-rendering: -webkit-optimize-contrast; /* Chrome (and eventually Safari) */
+    image-rendering: pixelated; /* Chrome */
+    image-rendering: optimize-contrast;         /* CSS3 Proposed                  */
+    -ms-interpolation-mode: nearest-neighbor;   /* IE8+        */
+}
+
+.info {
+    color: white;
+    width: 100%;
+    font-size: 24px;
+    font-family: 'Arcade', monospace;
+}
+
+.right {
+    float: right;
+}
+
+.button {
+    font-size: 24px;
+    font-family: 'Arcade', monospace;
+
+    display: block;
+    color: rgb(22, 46, 34);
+    border: solid 2px rgba(28,71,38,1);
+    background: rgb(74, 129, 74);
+    padding: 8px 48px 8px 48px;
+    border-radius: 8px;
+
+    outline: none;
+    box-shadow: 0px 12px 0px 0px rgba(28,71,38,1);
+    cursor: pointer;
+
+    margin: 0 auto;
+}
+
+.button:hover {
+    box-shadow: 0px 10px 0px 0px rgba(28,71,38,1);
+    margin-top: 2px;
+}
+
+.button:active {
+    box-shadow: 0px 5px 0px 0px rgba(28,71,38,1);
+    margin-top: 7px;
+}
