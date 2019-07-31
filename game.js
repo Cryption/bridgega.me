@@ -41,12 +41,14 @@ const gravity = 20;
 const keyDown = {};
 window.onkeyup = function(e) { 
     keyDown[e.keyCode] = false; 
-    
+}
+window.onkeydown = function(e) { 
+    keyDown[e.keyCode] = true; 
+
     if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
         e.preventDefault();
     }
 }
-window.onkeydown = function(e) { keyDown[e.keyCode] = true; }
 
 let players = [];
 

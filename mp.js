@@ -51,8 +51,6 @@ ws.onmessage = function (event) {
             let y = dv.getFloat32(i + 8, true);
             let state = dv.getUint8(i + (4 * 3));
 
-            console.log({ x: x, y: y });
-
             if(window.me != null && id == me.id) continue;
             if(otherPlayers[id] == null)
                 otherPlayers[id] = spawnFriend();
