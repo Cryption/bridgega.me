@@ -1,4 +1,4 @@
-//var ws = new WebSocket("ws://localhost:3001"); //"ws://10.150.93.108:8080");
+//var ws = new WebSocket("ws://localhost:3000"); //"ws://10.150.93.108:8080");
 var ws = new WebSocket("wss://ws.bridgega.me");
 
 var tokensEl = document.getElementById('tokens');
@@ -133,7 +133,14 @@ ws.onmessage = function (event) {
 
 setInterval(() => {
     if(state == 'Playing') {
-        send({});
+        let buf = new ArrayBuffer((4 * 2) + 1);
+        let dv = new DataView(buf);
+
+        dv.setFloat32(0, me.pos.x, true);
+        dv.setFloat32(4, me.pos.y, true);
+        dv.setUint8(8, Math.max(0, stateValues.indexOf(me.state)));
+
+        ws.send(dv);
     }
 
     tokensEl.innerText = tokens + ' lives';

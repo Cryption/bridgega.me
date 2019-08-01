@@ -660,4 +660,6 @@ function draw() {
     window.requestAnimationFrame(draw);
 }
 
+setInterval(() => draw, 60);
+
 window.requestAnimationFrame(draw);
