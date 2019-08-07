@@ -38,13 +38,7 @@ const levelHeight = level.length;
 
 const gravity = 20;
 
-const keyDown = {};
-window.onkeyup = function(e) { 
-    keyDown[e.keyCode] = false; 
-}
 window.onkeydown = function(e) { 
-    keyDown[e.keyCode] = true; 
-
     if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
         e.preventDefault();
     }
@@ -63,7 +57,7 @@ function clamp(num, min, max) {
 }
 
 class Player {
-    constructor() {
+    constructor(controllable) {
         this.pos = { x: 0, y: 0 };
         this.vel = { x: 0, y: 0 };
 
@@ -73,16 +67,73 @@ class Player {
         this.oldPos = { x: 0, y: 0 };
         this.newPos = { x: 0, y: 0 };
 
-        this.controllable = false;
+        /* 
+            mp.input(uint8)
+            up, left, down, right
+            0123 WASD down
+            4567 WASD up
+        */
 
-        this.wasd = true; //players.length % 2 == 0;
-        this.arrows = true; //players.length % 2 == 1;
+        if(controllable) {        
+            window.addEventListener('keydown', (e) => {
+                let delay = (window.delay || 0) + Math.max(0, window.fakeDelay || 0);
+                setTimeout(() => {
+                    if([65, 37].indexOf(e.keyCode) != -1) {
+                        //this.left = true;
+                        mp.input(1);
+                    }
+                    if([68, 39].indexOf(e.keyCode) != -1) {
+                        //this.right = true;
+                        mp.input(3);
+                    }
+                    if([87, 38, 32].indexOf(e.keyCode) != -1) {
+                        //this.up = true;
+                        mp.input(0);
+                    }
+                    if([83, 40].indexOf(e.keyCode) != -1) {
+                        //this.down = true;
+                        mp.input(2);
+                    }
+                }, delay);
+            });
+
+            window.addEventListener('keyup', (e) => {
+                let delay = (window.delay || 0) + Math.max(0, window.fakeDelay || 0);
+                setTimeout(() => {
+                    if([65, 37].indexOf(e.keyCode) != -1) {
+                        //this.left = false;
+                        mp.input(5);
+                    }
+                    if([68, 39].indexOf(e.keyCode) != -1) {
+                        //this.right = false;
+                        mp.input(7);
+                    }
+                    if([87, 38, 32].indexOf(e.keyCode) != -1) {
+                        //this.up = false;
+                        mp.input(4);
+                    }
+                    if([83, 40].indexOf(e.keyCode) != -1) {
+                        //this.down = false;
+                        mp.input(6);
+                    }
+                }, delay);
+            });
+        }
+        
+
+        //this.controllable = false;
 
         this.lookingRight = true;
 
         this.stateTime = Date.now();
 
         this.alive = true;
+
+        /** input **/
+        this.left = false;
+        this.right = false;
+        this.up = false;
+        this.down = false;
     }
 
     testCollision(ox, oy) {
@@ -119,31 +170,31 @@ class Player {
         const speed = (this.state == 'bonk' && this.onGround) ? 10 : 50;
         const jumpForce = 12;
 
-        if((this.wasd && keyDown[65]) || (this.arrows && keyDown[37])) {
+        if(this.left) {
             this.vel.x -= speed * dt;
             this.lookingRight = false;
             if(this.state == 'idle')
                 this.state = 'walk';
         }
         
-        if((this.wasd && keyDown[68]) || (this.arrows && keyDown[39])) {
+        if(this.right) {
             this.vel.x += speed * dt;
             this.lookingRight = true;
             if(this.state == 'idle')
                 this.state = 'walk';
         }
 
-        if(this.onGround && ((this.wasd && keyDown[87]) || (this.arrows && keyDown[38]) || keyDown[32])) {
+        if(this.onGround && this.up) {
             this.vel.y = -jumpForce;
         }
 
         if(!this.onGround && this.state != 'bonk') {
-            if(this.vel.y > 0 && ((this.wasd && keyDown[83]) || (this.arrows && keyDown[40]))) {
+            if(this.vel.y > 0 && this.down) {
                 this.state = "bonker";
             } else this.state = this.vel.y > 0 ? 'fall' : 'jump';
         }
 
-        if(this.state == 'idle' && ((this.wasd && keyDown[83]) || (this.arrows && keyDown[40]))) {
+        if(this.state == 'idle' && this.down) {
             this.state = 'down';
         }
     }
@@ -172,13 +223,25 @@ class Player {
 
     update(dt) {
         if(!this.alive) return;
-        if(!this.controllable) {
+        //if(this.controllable) {
+            if(this.state == "ko") {
+                if(Date.now() > this.stateTime) {
+                    this.state = "bonk";
+                    this.stateTime = Date.now() + 400;
+                }
+            } else if((this.state != "bonk" || Date.now() > this.stateTime) && this.state != "bonker")
+                this.state = "idle";
+        //}
+
+        this.onGround = false;
+
+        /*if(!this.controllable) {
             let delta = (Date.now() - this.newTime) / (this.newTime - this.oldTime);
             this.pos.x = lerp(this.oldPos.x, this.newPos.x, delta);
             this.pos.y = lerp(this.oldPos.y, this.newPos.y, delta);
             this.lookingRight = this.pos.x > this.oldPos.x;
             return;
-        }
+        }*/
 
         if(this.state == "bonker") {
             this.vel.x -= this.vel.x * 4 * dt;
@@ -293,23 +356,12 @@ class Player {
 
         this.pos.x += this.vel.x * dt;
         this.pos.y += this.vel.y * dt;
+
+        console.log(this.pos);
     }
 
     draw(dt) {
         if(!this.alive) return;
-        if(this.controllable) {
-            if(this.state == "ko") {
-                if(Date.now() > this.stateTime) {
-                    this.state = "bonk";
-                    this.stateTime = Date.now() + 400;
-                }
-            } else if((this.state != "bonk" || Date.now() > this.stateTime) && this.state != "bonker")
-                this.state = "idle";
-        }
-
-        this.onGround = false;
-
-        this.update(dt);
 
         let frames = playerStates[this.state];
         if(frames == null) frames = playerStates['ko'];
@@ -369,9 +421,8 @@ tiles['@'] = class {
 };
 
 window.spawnPlayer = function(pos) {
-    var player = new Player();
+    var player = new Player(true);
     player.pos = pos;
-    player.controllable = true;
 
     window.me = player;
 
@@ -379,8 +430,7 @@ window.spawnPlayer = function(pos) {
 }
 
 window.spawnFriend = function() {
-    var player = new Player();
-    player.controllable = false;
+    var player = new Player(false);
 
     players.push(player);
 
@@ -395,10 +445,13 @@ tiles['!'] = class {
         this.collidable = true;
     }
 
+    update() {
+        this.collidable = bridgeOn;
+    }
+
     draw() {
         let tile = getTile(bridgeOn ? 'R' : 'T');
         ctx.drawImage(tile, this.pos.x, this.pos.y, 32, 32);
-        this.collidable = bridgeOn;
     }
 }
 
@@ -422,7 +475,7 @@ tiles['#'] = class {
         };
     }
 
-    draw() {
+    update() {
         let pos = offset(this.pos);
         let now = Date.now();
         let oy = this.state == 'idle' ? 0 : (now - this.stateTime) / 5.0;
@@ -432,12 +485,28 @@ tiles['#'] = class {
             if(oy <= -8) {
                 this.state = 'down';
                 this.stateTime = now;
-                oy = -8;
             }
         } else if(this.state == 'down') {
             oy -= 8;
             if(oy >= 0) {
                 this.state = 'idle';
+            }
+        }
+    }
+
+    draw() {
+        let pos = offset(this.pos);
+        let now = Date.now();
+        let oy = this.state == 'idle' ? 0 : (now - this.stateTime) / 5.0;
+
+        if(this.state == 'up') {
+            oy *= -1;
+            if(oy <= -8) {
+                oy = -8;
+            }
+        } else if(this.state == 'down') {
+            oy -= 8;
+            if(oy >= 0) {
                 oy = 0;
             }
         }
@@ -516,7 +585,7 @@ tiles['$'] = class {
         };
     }
 
-    draw(dt) {
+    update(dt) {
         let pos = offset(this.pos);
         let now = Date.now();
         let oy = this.state == 'idle' ? 0 : (now - this.stateTime) / 5.0;
@@ -526,12 +595,28 @@ tiles['$'] = class {
             if(oy <= -8) {
                 this.state = 'down';
                 this.stateTime = now;
-                oy = -8;
             }
         } else if(this.state == 'down') {
             oy -= 8;
             if(oy >= 0) {
                 this.state = 'idle';
+            }
+        }
+    }
+
+    draw(dt) {
+        let pos = offset(this.pos);
+        let now = Date.now();
+        let oy = this.state == 'idle' ? 0 : (now - this.stateTime) / 5.0;
+
+        if(this.state == 'up') {
+            oy *= -1;
+            if(oy <= -8) {
+                oy = -8;
+            }
+        } else if(this.state == 'down') {
+            oy -= 8;
+            if(oy >= 0) {
                 oy = 0;
             }
         }
@@ -571,15 +656,43 @@ tiles['?'] = class {
         if(this.state == 'up') {
             oy *= -1;
             if(oy <= -8) {
-                this.state = 'down';
-                this.stateTime = now;
                 oy = -8;
             }
         } else if(this.state == 'down') {
             oy -= 8;
             if(oy >= 0) {
-                this.state = 'idle';
                 oy = 0;
+            }
+        }
+        
+        if(this.state == 'flip') {
+            let frame = ((now - this.stateTime) / 50.0) + 1;
+            if(frame >= 4) {
+                oy = 0;
+            } else {
+                ctx.drawImage(getTile('Z' + parseInt(frame)), pos.x, pos.y, 32, 32);
+            }
+        }
+
+        if(this.on && this.state != 'flip') 
+            ctx.drawImage(this.sprite, pos.x, pos.y + oy, 32, 32);
+    }
+
+    update(dt) {
+        let pos = offset(this.pos);
+        let now = Date.now();
+        let oy = this.state == 'idle' ? 0 : (now - this.stateTime) / 5.0;
+
+        if(this.state == 'up') {
+            oy *= -1;
+            if(oy <= -8) {
+                this.state = 'down';
+                this.stateTime = now;
+            }
+        } else if(this.state == 'down') {
+            oy -= 8;
+            if(oy >= 0) {
+                this.state = 'idle';
             }
         }
         
@@ -588,9 +701,6 @@ tiles['?'] = class {
             if(frame >= 4) {
                 this.state = 'idle';
                 this.stateTime = now;
-                oy = 0;
-            } else {
-                ctx.drawImage(getTile('Z' + parseInt(frame)), pos.x, pos.y, 32, 32);
             }
         }
 
@@ -599,9 +709,6 @@ tiles['?'] = class {
                 p.vel.x -= 70 * dt;
             }
         });
-
-        if(this.on && this.state != 'flip') 
-            ctx.drawImage(this.sprite, pos.x, pos.y + oy, 32, 32);
     }
 
     fall() {
@@ -622,44 +729,23 @@ tiles['?'] = class {
 
 setupLevel();
 
-function drawLevel(dt) {
-    let ox = width / 2 - levelWidth * 16;
-    let oy = height - levelHeight * 32;
-
+function updateLevel(dt) {
     for(let y = 0; y < levelHeight; y++) {
         for(let x = 0; x < levelWidth; x++) {
             if(level[y][x] == ' ') continue;
             let tile = getTile(level[y][x]);
-            if(tile instanceof HTMLImageElement)
-                ctx.drawImage(tile, ox + x * 32, oy + y * 32, 32, 32);
-            else if(entities[`${x}:${y}`] != null && entities[`${x}:${y}`].draw != null)
-                entities[`${x}:${y}`].draw(dt);
+            if(entities[`${x}:${y}`] != null && entities[`${x}:${y}`].update != null)
+                entities[`${x}:${y}`].update(dt);
         }
     }
 }
 
-let oldTime = Date.now();
+function update() {
+    let dt = 20.0 / 1000.0;
+    updateLevel(dt);
 
-function draw() {
-    let now = Date.now(); 
-    let dt = (now - oldTime) / 1000.0;
-    oldTime = now;
-
-    if(dt < 0.25) {
-        ctx.save();
-
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, width, height);
-
-        drawLevel(dt);
-        players = players.filter((p) => p.alive);
-        players.forEach((player) => player.draw(dt));
-
-        ctx.restore();
-    }
-    window.requestAnimationFrame(draw);
+    players = players.filter((p) => p.alive);
+    players.forEach((player) => player.update(dt));
 }
 
-setInterval(() => draw, 60);
-
-window.requestAnimationFrame(draw);
+setInterval(update, 20);
